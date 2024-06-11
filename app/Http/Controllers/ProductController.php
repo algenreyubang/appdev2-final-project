@@ -31,9 +31,10 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(int $id)
     {
-        return $id;
+        $product = Product::findOrFail($id); // Use findOrFail to get user or throw 404
+        return response()->json($product);
     }
 
     /**
@@ -59,6 +60,10 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Product deleted successfully',
+           
+            'status' => true
+        ], 200);
     }
 }

@@ -17,29 +17,15 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return $user;
-    }
+    
 
     /**
      * Display the specified resource.
      */
-    public function show( user $user)
+    public function show(int $id) // Correct the parameter type to int
     {
-        return $user;
+        $user = User::findOrFail($id); // Use findOrFail to get user or throw 404
+        return response()->json($user);
     }
 
     /**
@@ -65,8 +51,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+       
+    
         $user->delete();
-
-        return response()->noContent();
+    
+        return response()->json([
+            'message' => 'User deleted successfully',
+           
+            'status' => true
+        ], 200);
     }
 }
