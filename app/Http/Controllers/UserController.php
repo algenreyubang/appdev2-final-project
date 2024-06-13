@@ -33,17 +33,20 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Validate the incoming request data
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
         ]);
-
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
-        return $user;
+    
+        // Update the user's details
+        $user->update($validatedData);
+    
+        // Return the updated user with a success status
+        return response()->json([
+            'user' => $user,
+            'message' => 'User updated successfully'
+        ], 200);
     }
 
     /**

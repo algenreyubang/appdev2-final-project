@@ -28,6 +28,9 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout']);
 // Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::apiResource('products', ProductController::class);
+Route::put('products/{id}', [ProductController::class, 'update']);
 Route::apiResource('users', UserController::class);
+Route::put('users/{id}', [UserController::class, 'update']);
 Route::apiResource('orders', OrderController::class);
 Route::apiResource('orderitems', OrderItemController::class);
+

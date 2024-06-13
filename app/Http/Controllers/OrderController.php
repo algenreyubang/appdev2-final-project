@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\DB;
+
+use App\Models\User;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -23,18 +26,36 @@ class OrderController extends Controller
             'user_id' => 'required|exists:users,id',
             'total_amount' => 'required|numeric',
             'status' => 'required|in:pending,completed,cancelled',
-            'items' => 'required|array',
+            'items' => 'required|string',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
         ]);
-
+    
+        // Create the order
         $order = Order::create([
             'user_id' => $request->user_id,
             'total_amount' => $request->total_amount,
             'status' => $request->status,
         ]);
+    
+        // Attach items to the order
+        foreach ($request->items as $item) {
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+        }
+    
+        // Optionally, recalculate total amount if needed
+        // $totalAmount = $order->items->sum(fn($item) => $item->quantity * $item->price);
+        // $order->update(['total_amount' => $totalAmount]);
+    
+        // Return the created order with its items
+        return $order->load('items');
     }
+    
 
     /**
      * Display the specified resource.
@@ -49,21 +70,24 @@ class OrderController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Order $order)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'total_amount' => 'required|numeric',
-            'status' => 'required|in:pending,completed,cancelled',
-        ]);
+{
+    // Validate the request
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'total_amount' => 'required|numeric',
+        'status' => 'required|in:pending,completed,cancelled',
+    ]);
 
-        $order->update([
-            'user_id' => $request->user_id,
-            'total_amount' => $request->total_amount,
-            'status' => $request->status,
-        ]);
+    // Update the order
+    $order->update([
+        'user_id' => $request->user_id,
+        'total_amount' => $request->total_amount,
+        'status' => $request->status,
+    ]);
 
-        return $order->load('items');
-    }
+    // Load the order with related items and user information
+    return $order->load('items', 'user');
+}
 
 
     /**

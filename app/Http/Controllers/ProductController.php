@@ -18,15 +18,20 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-        ]);
+{
+    $request->validate([
 
-        return Product::create($request->all());
-    }
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric',
+    ]);
+
+    $product = Product::create($request->all());
+
+    
+    return $product;
+}
+
 
     /**
      * Display the specified resource.
@@ -42,15 +47,19 @@ class ProductController extends Controller
      */
     public function update(Request $request, product $product)
     {
-        $request->validate([
+      $validatedData  = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
         ]);
 
-        $product->update($request->all());
-
-        return $product;
+        $product->update($validatedData);
+     
+        // return $product;
+        return response()->json([
+            'product' => $product,
+            'message' => 'Product updated successfully'
+        ], 200);
     }
 
     /**
